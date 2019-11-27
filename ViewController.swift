@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     var countries = [String]()
     var score = 0
     var correctAnswer = 0
+    var questionsAnswered = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +28,7 @@ class ViewController: UIViewController {
         button3.layer.borderWidth = 1
         
         //must use cgColor to convert uicolor
-        button1.layer.borderColor = UIColor.lightGray.cgColor
+        button1.layer.borderColor = UIColor.black.cgColor
         button2.layer.borderColor = UIColor.lightGray.cgColor
         button3.layer.borderColor = UIColor.lightGray.cgColor
         
@@ -44,8 +45,9 @@ class ViewController: UIViewController {
         for: .normal)
         button3.setImage(UIImage(named: countries[2]),
         for: .normal)
+        questionsAnswered += 1
         
-        title = countries[correctAnswer].uppercased()
+        title = countries[correctAnswer].uppercased() + "  Score: \(String(score))"
     }
     
     @IBAction func buttonTapped(_ sender: UIButton) {
@@ -55,17 +57,17 @@ class ViewController: UIViewController {
             title = "Correct!"
             score += 1
         }else {
-            title = "Wrong..."
+            title = "Wrong! that is the flag of \(countries[sender.tag].uppercased()) "
             score -= 1
         }
         
-        if score == 3 {
+        if score == 5 {
             title = "You Win!"
             let ac = UIAlertController(title: title, message: "You have won the game", preferredStyle: .actionSheet)
             ac.addAction(UIAlertAction(title: "Restart Game?", style: .default, handler: askQuestion))
             present (ac, animated: true)
             score = 0
-        }else if score == -3 {
+        }else if score == -5 {
             title = "You Lose"
             
             let ac = UIAlertController(title: title, message: "You have lost the game", preferredStyle: .actionSheet)
@@ -74,7 +76,16 @@ class ViewController: UIViewController {
             score = 0
 
                       
-        }else {
+        }else if questionsAnswered == 10 {
+        title = "Game will now reset!"
+        
+        let ac = UIAlertController(title: title, message: "Your final score is \(score)", preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "Restart Game?", style: .default, handler: askQuestion))
+        present (ac, animated: true)
+        score = 0
+        questionsAnswered = 0
+        }
+        else {
         
         let ac = UIAlertController(title: title, message: "Your score is \(score)", preferredStyle: .alert)
         

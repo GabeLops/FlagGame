@@ -33,7 +33,7 @@ class ViewController: UIViewController {
         button3.layer.borderColor = UIColor.lightGray.cgColor
         
         askQuestion()
-    
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "SCORE", style: .plain, target: self, action: #selector(shareTapped))
     }
     func askQuestion (action: UIAlertAction! = nil) {
         
@@ -97,5 +97,12 @@ class ViewController: UIViewController {
     
 }
 }
+    @objc func shareTapped() {
+    
+    let vc = UIAlertController(title: "YOUR CURRENT SCORE IS", message: String(score), preferredStyle: .alert)
+        vc.addAction(UIAlertAction(title: "Continue", style: .cancel, handler: nil))
+    vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
+    present(vc, animated: true)
+    }
 }
 

@@ -13,8 +13,11 @@ class ViewController: UIViewController {
     @IBOutlet var button2: UIButton!
     @IBOutlet var button3: UIButton!
     
+    
+    
     var countries = [String]()
     var score = 0
+    var scores = [highScore]()
     var correctAnswer = 0
     var questionsAnswered = 0
     
@@ -23,18 +26,33 @@ class ViewController: UIViewController {
         
         countries += ["estonia", "france", "germany", "ireland", "italy", "monaco", "nigeria", "poland", "russia", "spain", "uk", "us"]
         
-        button1.layer.borderWidth = 1
-        button2.layer.borderWidth = 1
-        button3.layer.borderWidth = 1
+        button1.layer.borderWidth = 2
+        button2.layer.borderWidth = 2
+        button3.layer.borderWidth = 2
         
         //must use cgColor to convert uicolor
-        button1.layer.borderColor = UIColor.black.cgColor
+        button1.layer.borderColor = UIColor.lightGray.cgColor
         button2.layer.borderColor = UIColor.lightGray.cgColor
         button3.layer.borderColor = UIColor.lightGray.cgColor
         
         askQuestion()
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "SCORE", style: .plain, target: self, action: #selector(shareTapped))
+        
+        let defaults = UserDefaults.standard
+        if let savedScore = defaults.object(forKey: "score") as? Data{
+            let jsonDecoder = JSONDecoder()
+         do {
+            scores = try jsonDecoder.decode([highScore].self, from: savedScore)
+         } catch {
+            print("Its wrong")
+            }
+        }
+        let highScores = highScore(bestScore: 0)
+        if scores.isEmpty {
+            scores.append(highScores)
+        }
     }
+    
     func askQuestion (action: UIAlertAction! = nil) {
         
         countries.shuffle()
@@ -61,6 +79,7 @@ class ViewController: UIViewController {
             score -= 1
         }
         
+        /*
         if score == 5 {
             title = "You Win!"
             let ac = UIAlertController(title: title, message: "You have won the game", preferredStyle: .actionSheet)
@@ -74,16 +93,30 @@ class ViewController: UIViewController {
             ac.addAction(UIAlertAction(title: "Restart Game?", style: .default, handler: askQuestion))
             present (ac, animated: true)
             score = 0
-
-                      
-        }else if questionsAnswered == 10 {
-        title = "Game will now reset!"
         
-        let ac = UIAlertController(title: title, message: "Your final score is \(score)", preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "Restart Game?", style: .default, handler: askQuestion))
-        present (ac, animated: true)
-        score = 0
-        questionsAnswered = 0
+                      
+        }else*/ if questionsAnswered == 10 {
+            
+           
+            let highScores = scores[0]
+            if score > highScores.bestScore {
+                highScores.bestScore = score
+                save()
+                
+                title = "New HighScore!"
+                let ac = UIAlertController(title: title, message: "Your final score is \(score)", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "Restart Game?", style: .default, handler: askQuestion))
+
+                present(ac, animated: true)
+                score = 0
+                questionsAnswered = 0
+            }
+            title = "Game will now reset!"
+            let ac = UIAlertController(title: title, message: "Your final score is \(score)", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Restart Game?", style: .default, handler: askQuestion))
+            present (ac, animated: true)
+            score = 0
+            questionsAnswered = 0
         }
         else {
         
@@ -103,6 +136,17 @@ class ViewController: UIViewController {
         vc.addAction(UIAlertAction(title: "Continue", style: .cancel, handler: nil))
     vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
     present(vc, animated: true)
+    }
+
+    func save() {
+        
+        let jsonEncoder = JSONEncoder()
+        if let savedScore = try? jsonEncoder.encode(scores) {
+            let defaults = UserDefaults.standard
+            defaults.set(savedScore, forKey: "score")
+        }else {
+           print("failed to load score")
+        }
     }
 }
 
